@@ -26,24 +26,27 @@ jobs:
       - name: Install dbt packages
         run: dbt deps
 
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          truebridge_demo:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: "${{ secrets.SNOWFLAKE_ACCOUNT }}"
+                user: "${{ secrets.SNOWFLAKE_USER }}"
+                password: "${{ secrets.SNOWFLAKE_PASSWORD }}"
+                role: "${{ secrets.SNOWFLAKE_ROLE }}"
+                warehouse: "${{ secrets.SNOWFLAKE_WAREHOUSE }}"
+                database: "${{ secrets.SNOWFLAKE_DATABASE }}"
+                schema: "${{ secrets.SNOWFLAKE_SCHEMA }}"
+                threads: 1
+          EOF
+
       - name: Run dbt models
         run: dbt run
-        env:
-          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          DBT_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          DBT_SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-          DBT_SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
 
       - name: Run dbt tests
         run: dbt test
-        env:
-          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          DBT_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          DBT_SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-          DBT_SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}

@@ -50,3 +50,6 @@ jobs:
 
       - name: Run dbt tests
         run: dbt test
+      
+      - name: Build Docker image
+        run: docker build -t truebridge-dbt-demo:latest .

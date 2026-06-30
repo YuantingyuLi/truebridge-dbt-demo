@@ -45,7 +45,7 @@ final as (
         n.latest_nav,
 
         -- TVPI = (distributions + current value) / contributions
-        round((ff.total_distributions + n.latest_nav) / nullif(ff.total_contributions, 0), 2) as tvpi,
+        round((ff.total_distributions - n.latest_nav) / nullif(ff.total_contributions, 0), 2) as tvpi,
 
         -- DPI = distributions / contributions
         round(ff.total_distributions / nullif(ff.total_contributions, 0), 2) as dpi,

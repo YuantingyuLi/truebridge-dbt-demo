@@ -1,0 +1,49 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dbt-run-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-snowflake
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Run dbt models
+        run: dbt run
+        env:
+          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          DBT_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          DBT_SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          DBT_SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+
+      - name: Run dbt tests
+        run: dbt test
+        env:
+          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          DBT_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          DBT_SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          DBT_SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}

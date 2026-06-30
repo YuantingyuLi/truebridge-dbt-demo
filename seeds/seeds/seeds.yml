@@ -1,0 +1,17 @@
+version: 2
+
+seeds:
+  - name: strategy_benchmarks
+    description: "Industry benchmark TVPI and DPI by investment strategy, used as a reference point for evaluating fund performance. Sourced from external market data (static reference table)."
+    columns:
+      - name: strategy
+        description: "Investment strategy (venture, growth, buyout), matches stg_funds.strategy."
+        tests:
+          - unique
+          - not_null
+
+      - name: benchmark_tvpi
+        description: "Industry average TVPI for this strategy."
+
+      - name: benchmark_dpi
+        description: "Industry average DPI for this strategy."

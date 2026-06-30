@@ -6,7 +6,11 @@ nav as (
     select * from {{ ref('stg_nav_snapshots') }}
 ),
 
--- 每个基金的总出资和总分配
+benchmarks as (
+    select * from {{ ref('strategy_benchmarks') }}
+),
+
+-- Total contributions and distributions per fund
 fund_flows as (
     select
         fund_id,
@@ -20,7 +24,7 @@ fund_flows as (
     group by fund_id, fund_name, vintage_year, strategy, manager
 ),
 
--- 每个基金最新的 NAV
+-- Most recent NAV snapshot per fund
 latest_nav as (
     select
         fund_id,
@@ -39,12 +43,26 @@ final as (
         ff.total_contributions,
         ff.total_distributions,
         n.latest_nav,
-        -- TVPI = (分配 + 现值) / 出资
+
+        -- TVPI = (distributions + current value) / contributions
         round((ff.total_distributions + n.latest_nav) / nullif(ff.total_contributions, 0), 2) as tvpi,
-        -- DPI = 分配 / 出资
-        round(ff.total_distributions / nullif(ff.total_contributions, 0), 2) as dpi
+
+        -- DPI = distributions / contributions
+        round(ff.total_distributions / nullif(ff.total_contributions, 0), 2) as dpi,
+
+        -- Benchmark comparison: industry average TVPI/DPI for this strategy
+        b.benchmark_tvpi,
+        b.benchmark_dpi,
+
+        -- Outperformance: how much this fund beats (or trails) the industry benchmark
+        round(
+            (ff.total_distributions + n.latest_nav) / nullif(ff.total_contributions, 0) - b.benchmark_tvpi,
+            2
+        ) as tvpi_vs_benchmark
+
     from fund_flows ff
     left join latest_nav n on ff.fund_id = n.fund_id
+    left join benchmarks b on ff.strategy = b.strategy
 )
 
 select * from final

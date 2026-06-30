@@ -49,7 +49,16 @@ models:
 
       - name: dpi
         description: "Distributions to Paid-In multiple = total_distributions / total_contributions. Measures realized (cash-on-cash) returns relative to capital invested."
+      
+      - name: benchmark_tvpi
+        description: "Industry average TVPI for this fund's strategy, sourced from the strategy_benchmarks seed."
 
+      - name: benchmark_dpi
+        description: "Industry average DPI for this fund's strategy, sourced from the strategy_benchmarks seed."
+
+      - name: tvpi_vs_benchmark
+        description: "Difference between this fund's TVPI and the industry benchmark TVPI for its strategy. Positive values indicate outperformance."
+  
   - name: portfolio_summary
     description: "Summary of each portfolio company's investment activity across all funds, including number of investing funds, total invested, and total returned. One row per company."
     columns:

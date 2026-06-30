@@ -55,7 +55,7 @@ class TestCalculateIRR:
         irr = calculate_irr(cash_flows)
         assert irr is not None
         assert irr > 0
-        assert npv(irr, cash_flows) == pytest.approx(0, abs=1e-2)  # 从 1e-3 改成 1e-2
+        assert npv(irr, cash_flows) == pytest.approx(0, abs=1e-2)
 
     def test_negative_irr(self):
         """

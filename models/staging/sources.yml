@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    database: DEMO_DB
+    schema: RAW
+    tables:
+      - name: funds
+      - name: portfolio_companies
+      - name: cash_flows
+      - name: nav_snapshots

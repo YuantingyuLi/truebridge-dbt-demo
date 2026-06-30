@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: fund_performance
+    description: "Core fund performance metrics, including contributions, distributions, latest NAV, TVPI, and DPI. One row per fund."
+    columns:
+      - name: fund_id
+        description: "Unique identifier for the fund."
+        tests:
+          - unique
+          - not_null
+
+      - name: fund_name
+        description: "Name of the fund."
+        tests:
+          - not_null
+
+      - name: vintage_year
+        description: "Vintage year of the fund."
+
+      - name: strategy
+        description: "Investment strategy of the fund."
+
+      - name: manager
+        description: "Name of the fund management firm."
+
+      - name: total_contributions
+        description: "Total capital contributed to the fund (called from LPs), in USD."
+        tests:
+          - not_null
+
+      - name: total_distributions
+        description: "Total capital distributed back to LPs, in USD."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: latest_nav
+        description: "Most recent reported Net Asset Value of the fund, in USD."
+
+      - name: tvpi
+        description: "Total Value to Paid-In multiple = (total_distributions + latest_nav) / total_contributions. Measures total value created relative to capital invested."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: dpi
+        description: "Distributions to Paid-In multiple = total_distributions / total_contributions. Measures realized (cash-on-cash) returns relative to capital invested."
+
+  - name: portfolio_summary
+    description: "Summary of each portfolio company's investment activity across all funds, including number of investing funds, total invested, and total returned. One row per company."
+    columns:
+      - name: company_id
+        description: "Unique identifier for the portfolio company."
+        tests:
+          - unique
+          - not_null
+
+      - name: company_name
+        description: "Name of the portfolio company."
+        tests:
+          - not_null
+
+      - name: sector
+        description: "Industry sector of the company."
+
+      - name: stage
+        description: "Investment stage of the company."
+
+      - name: founded_year
+        description: "Year the company was founded."
+
+      - name: num_funds_invested
+        description: "Number of distinct funds that have invested in this company."
+
+      - name: total_invested
+        description: "Total amount invested in this company across all funds, in USD."
+
+      - name: total_returned
+        description: "Total amount returned (distributed) from this company across all funds, in USD."
+
+      - name: first_investment_date
+        description: "Date of the earliest cash flow involving this company."
+
+      - name: last_activity_date
+        description: "Date of the most recent cash flow involving this company."

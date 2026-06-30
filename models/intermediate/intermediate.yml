@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: int_fund_cash_flows
+    description: "Cash flow records enriched with fund-level attributes (name, vintage year, strategy, manager). One row per cash flow event."
+    columns:
+      - name: flow_id
+        description: "Unique identifier for each cash flow record."
+        tests:
+          - unique
+          - not_null
+
+      - name: fund_id
+        description: "Foreign key to the fund this cash flow belongs to."
+        tests:
+          - not_null
+
+      - name: flow_date
+        description: "Date the cash flow occurred."
+
+      - name: flow_type
+        description: "Type of cash flow: 'contribution' or 'distribution'."
+
+      - name: amount_usd
+        description: "Dollar amount of the cash flow, in USD."
+
+      - name: fund_name
+        description: "Name of the fund associated with this cash flow."
+
+      - name: vintage_year
+        description: "Vintage year of the fund."
+
+      - name: strategy
+        description: "Investment strategy of the fund."
+
+      - name: manager
+        description: "Name of the fund management firm."
+
+  - name: int_portfolio_coverage
+    description: "Cash flow records enriched with portfolio company attributes (name, sector, stage, founded year). One row per cash flow event."
+    columns:
+      - name: company_id
+        description: "Foreign key to the portfolio company this cash flow relates to."
+        tests:
+          - not_null
+
+      - name: company_name
+        description: "Name of the portfolio company."
+
+      - name: sector
+        description: "Industry sector of the company."
+
+      - name: stage
+        description: "Investment stage of the company."
+
+      - name: founded_year
+        description: "Year the company was founded."
+
+      - name: fund_id
+        description: "Foreign key to the fund that made this investment."
+        tests:
+          - not_null
+
+      - name: flow_date
+        description: "Date the cash flow occurred."
+
+      - name: flow_type
+        description: "Type of cash flow: 'contribution' or 'distribution'."
+
+      - name: amount_usd
+        description: "Dollar amount of the cash flow, in USD."

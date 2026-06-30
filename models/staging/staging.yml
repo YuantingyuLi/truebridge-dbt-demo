@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: stg_funds
+    description: "Cleaned fund-level reference data. One row per fund."
+    columns:
+      - name: fund_id
+        description: "Unique identifier for the fund."
+        tests:
+          - unique
+          - not_null
+
+      - name: fund_name
+        description: "Name of the fund."
+
+      - name: vintage_year
+        description: "The year the fund was launched / began making investments."
+
+      - name: strategy
+        description: "Investment strategy of the fund (e.g. venture, growth), normalized to lowercase."
+
+      - name: manager
+        description: "Name of the fund management firm."
+
+  - name: stg_portfolio_companies
+    description: "Cleaned reference data for portfolio companies. One row per company."
+    columns:
+      - name: company_id
+        description: "Unique identifier for the portfolio company."
+        tests:
+          - unique
+          - not_null
+
+      - name: company_name
+        description: "Name of the portfolio company."
+
+      - name: sector
+        description: "Industry sector of the company, normalized to lowercase."
+
+      - name: stage
+        description: "Investment stage of the company (e.g. early, mid, late), normalized to lowercase."
+
+      - name: founded_year
+        description: "Year the company was founded."
+
+  - name: stg_cash_flows
+    description: "Cleaned cash flow records, representing contributions to and distributions from funds. One row per cash flow event."
+    columns:
+      - name: flow_id
+        description: "Unique identifier for each cash flow record."
+        tests:
+          - unique
+          - not_null
+
+      - name: fund_id
+        description: "Foreign key to stg_funds, indicating which fund this cash flow belongs to."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_funds')
+              field: fund_id
+
+      - name: company_id
+        description: "Foreign key to stg_portfolio_companies, indicating which company this cash flow relates to."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_portfolio_companies')
+              field: company_id
+
+      - name: flow_date
+        description: "Date the cash flow occurred."
+        tests:
+          - not_null
+
+      - name: flow_type
+        description: "Type of cash flow: 'contribution' (capital called from LPs) or 'distribution' (capital returned to LPs)."
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['contribution', 'distribution']
+
+      - name: amount_usd
+        description: "Dollar amount of the cash flow, in USD. Always positive; direction is indicated by flow_type."
+        tests:
+          - not_null
+
+  - name: stg_nav_snapshots
+    description: "Cleaned quarterly NAV (Net Asset Value) snapshots for each fund. One row per fund per snapshot date."
+    columns:
+      - name: snapshot_id
+        description: "Unique identifier for the NAV snapshot record."
+        tests:
+          - unique
+          - not_null
+
+      - name: fund_id
+        description: "Foreign key to stg_funds, indicating which fund this NAV snapshot belongs to."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_funds')
+              field: fund_id
+
+      - name: snapshot_date
+        description: "The date as of which this NAV value is reported."
+        tests:
+          - not_null
+
+      - name: nav_usd
+        description: "Net Asset Value of the fund as of snapshot_date, in USD."
+        tests:
+          - not_null

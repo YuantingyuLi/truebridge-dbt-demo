@@ -65,18 +65,6 @@ Marts Layer
 
 ---
 
-## Seeds
-
-The `seeds/` folder contains static reference data managed as CSV files under version control:
-
-- **`strategy_benchmarks.csv`**: Industry average TVPI and DPI by investment strategy (venture, growth, buyout). Used in the `fund_performance` mart to compare each fund's performance against its peer benchmark.
-
-```bash
-dbt seed
-```
-
----
-
 ## Snapshots
 
 The `snapshots/` folder tracks historical changes to fund reference data using dbt's SCD Type 2 snapshot pattern:
@@ -112,79 +100,6 @@ Run tests for a specific model:
 ```bash
 dbt test --select fund_performance
 ```
-
----
-
-## Documentation
-
-Every model, seed, and column is documented with a `description` field in the corresponding `.yml` file. Generate and browse the auto-generated documentation site (including the auto-derived data lineage graph) with:
-
-```bash
-dbt docs generate
-dbt docs serve
-```
-
----
-
-## IRR Calculation Utility
-
-`python/irr.py` implements IRR calculation from scratch using the **Newton-Raphson iterative method**, without relying on external libraries like `numpy_financial`. This demonstrates understanding of the underlying algorithm — relevant because client-side IRR calculations (e.g. in a JavaScript/React frontend) cannot rely on Python packages.
-
-Key functions:
-- `npv(rate, cash_flows)`: Calculates Net Present Value at a given discount rate
-- `calculate_irr(cash_flows)`: Iteratively solves for the IRR using Newton-Raphson
-
-Unit tests in `python/test_irr.py` cover:
-- Basic mathematical correctness (NPV at rate=0 equals simple sum)
-- The fundamental IRR definition (substituting IRR back into NPV should yield ≈ 0)
-- Realistic VC scenarios (multiple contributions, single large distribution)
-- Loss scenarios (negative IRR)
-- Error handling (empty cash flows, missing inflows or outflows)
-
-```bash
-cd python
-pytest test_irr.py -v
-```
-
----
-
-## CI/CD
-
-This project uses **GitHub Actions** to automatically run `dbt run` and `dbt test` on every push to `main` and on every pull request targeting `main`. The workflow:
-
-1. Checks out the repository
-2. Installs Python 3.11 and `dbt-snowflake`
-3. Installs dbt packages (`dbt_utils`)
-4. Dynamically generates `profiles.yml` from GitHub Secrets (Snowflake credentials are never committed to the repo)
-5. Runs all dbt models
-6. Runs all dbt tests
-7. Builds a Docker image of the project
-
-See `.github/workflows/dbt-ci.yml` for the full configuration.
-
----
-
-## Containerization
-
-A `Dockerfile` packages the dbt project (Python 3.11 + `dbt-snowflake` + project code) into a portable image, demonstrating the build step of a CI/CD pipeline that would deploy to a container hosting platform such as Snowpark Container Services.
-
-```bash
-docker build -t truebridge-dbt-demo:latest .
-```
-
----
-
-## Incident Response
-
-This project was used to practice a full incident response workflow:
-
-1. **Detect**: A bug was intentionally introduced (incorrect TVPI formula). The `dbt_utils.expression_is_true` test on `tvpi >= 0` automatically caught it, producing 4 failures.
-2. **Contain**: `git revert HEAD` was used to immediately restore the production environment to a stable state.
-3. **Diagnose**: `git log --oneline` and `git show <commit_hash>` were used to identify the exact line changed and who changed it.
-4. **Fix**: A feature branch (`fix/debug-tvpi`) was created from the buggy commit. The formula was corrected and a new regression test (`assert_tvpi_gte_dpi`) was added to prevent recurrence.
-5. **PR & Merge**: A pull request was opened with a structured description (Problem / Root Cause / Fix / Regression Test Added). CI passed before merge.
-
-Key principle: **revert first to stop the bleeding, then investigate and fix on a feature branch** — never debug directly on `main`.
 
 ---
 

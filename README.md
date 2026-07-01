@@ -1,6 +1,6 @@
 # TrueBridge dbt Demo — Fund Performance Analytics Pipeline
 
-A demo data pipeline simulating a venture capital fund performance analytics stack, built with **Snowflake**, **dbt**, and **GitHub Actions CI/CD**. This project was built to demonstrate the analytics engineering skills required for the Data Impact Analyst role at TrueBridge Capital Partners.
+A demo data pipeline simulating a venture capital fund performance analytics stack, built with **Snowflake**, **dbt**, and **GitHub Actions CI/CD**.
 
 ---
 
